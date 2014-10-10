@@ -1,0 +1,586 @@
+; =============================================================================
+; Name: Bui, Calvin
+; Login: cbui005
+; Assignment: assn8
+; Lab Section: 24
+; TA: ADITYA TAMMEWAR
+;
+; I hereby certify that the contents of this file are ENTIRELY my own original
+; work.
+; =============================================================================
+; -----------------------------------------------------------------------------
+; Subroutine:    SUB_MAIN_30000
+; Input:         None.
+; Postcondition: None.
+; Return Value:  None.
+; -----------------------------------------------------------------------------
+                .ORIG x3000               ;start at memory addr x3000
+
+;------------------------------------------------------------------------------
+;Instruction Block for SUB_MAIN_30000
+;------------------------------------------------------------------------------
+MAIN_MENU
+                JSR SUB_MENU
+                ADD R1, R1, #-1
+                BRz FIRST_OPTION
+                ADD R1, R1, #-1
+                BRz SECOND_OPTION
+                ADD R1, R1, #-1
+                BRz THIRD_OPTION
+                ADD R1, R1, #-1
+                BRz FOURTH_OPTION
+                ADD R1, R1, #-1
+                BRz FIFTH_OPTION
+                ADD R1, R1, #-1
+                BRz SIXTH_OPTION
+                LD R0, PROMPT_ADDR 
+                PUTS
+                HALT
+
+                
+FIRST_OPTION
+                LD R0, ALL_BUSY_ADDR
+                JSRR R0
+                ADD R2, R2, #0
+                BRp PRINT_ALL_BUSY
+                LEA R0, NOT_BUSY
+                PUTS
+                LEA R0, MAIN_MENU
+                JMP R0
+PRINT_ALL_BUSY 
+                LEA R0, ALL_BUSY
+                PUTS
+                
+                LEA R0, MAIN_MENU
+                JMP R0
+                
+SECOND_OPTION
+                LD R0, ALL_FREE_ADDR
+                JSRR R0
+                
+                ADD R2, R2, #0
+                BRp PRINT_ALL_FREE
+                LEA R0, NOT_FREE
+                PUTS
+                LEA R0, MAIN_MENU
+                JMP R0
+PRINT_ALL_FREE 
+                LEA R0, ALL_FREE
+                PUTS
+                
+                LEA R0, MAIN_MENU
+                JMP R0
+               
+THIRD_OPTION
+                LD R0, NUM_BUSY_ADDR
+                JSRR R0
+                LD R1, CONVERT
+                ADD R2, R2, R1
+                LEA R0, NUM_BUSY
+                PUTS
+                ADD R0, R2, #0
+                Trap x21
+                LEA R0, NUM_BUSY_2
+                PUTS
+                LEA R0, MAIN_MENU
+                JMP R0
+FOURTH_OPTION
+                LD R0, NUM_FREE_ADDR
+                JSRR R0
+                LD R1, CONVERT
+                ADD R2, R2, R1
+                LEA R0, NUM_FREE
+                PUTS
+                ADD R0, R2, #0
+                Trap x21
+                LEA R0, NUM_FREE_2
+                PUTS
+                
+                LEA R0, MAIN_MENU
+                JMP R0
+FIFTH_OPTION
+                LEA R0, WHICH_MACHINE
+                PUTS
+                Trap x20
+                Trap x21
+                LD R1, CONVERT
+                NOT R1, R1
+                ADD R1, R1, #1
+                ADD R0, R0, R1
+                ADD R1, R0, #0
+                LD R0, MACHINE_STATUS_ADDR
+                JSRR R0
+                ADD R2, R2, #0
+                BRz MACHINE_BUSY
+                LEA R0, WHICH_MACHINE_4
+                PUTS
+                LEA R0, MAIN_MENU
+                JMP R0
+MACHINE_BUSY
+                LEA R0, WHICH_MACHINE_3
+                PUTS
+            
+                LEA R0, MAIN_MENU
+                JMP R0
+SIXTH_OPTION
+                LD R0, FIRST_FREE_ADDR
+                JSRR R0
+                LEA R0, PRINT_FIRST_FREE
+                PUTS
+                LD R0, CONVERT
+                ADD R0, R0, R2
+                Trap x21
+                LD R0, LINE
+                Trap x21
+                LEA R0, MAIN_MENU
+                JMP R0
+               
+               
+                 
+              
+
+;------------------------------------------------------------------------------
+;Data Block for SUB_MAIN_3000
+;------------------------------------------------------------------------------
+LINE             .FILL #10
+ALL_BUSY_ADDR    .FILL x3400
+ALL_FREE_ADDR    .FILL x3600
+NUM_BUSY_ADDR    .FILL x3800
+NUM_FREE_ADDR    .FILL x4000
+MACHINE_STATUS_ADDR   .FILL x4200
+FIRST_FREE_ADDR  .FILL x4400
+PROMPT_ADDR      .FILL x5200
+CONVERT          .FILL #48
+ALL_BUSY   .STRINGZ "1. All machines are busy\n"
+NOT_BUSY   .STRINGZ "1. All machines are not busy\n"
+ALL_FREE   .STRINGZ "2. All machines are free\n"
+NOT_FREE   .STRINGZ "2. All machines are not free\n"
+NUM_BUSY   .STRINGZ "3. There are "
+NUM_BUSY_2 .STRINGZ " busy machines\n"
+NUM_FREE   .STRINGZ "4. There are "
+NUM_FREE_2 .STRINGZ " free machines\n"
+WHICH_MACHINE .STRINGZ "5. Which machine "
+WHICH_MACHINE_2  .STRINGZ "Machine "
+WHICH_MACHINE_3  .STRINGZ " is busy\n"
+WHICH_MACHINE_4  .STRINGZ " is free\n"
+PRINT_FIRST_FREE .STRINGZ "6. The first machine available is number "
+.ORIG x5200
+END_PROMPT       .STRINGZ "7. Goodbye!"
+.ORIG x5000
+BUSYNESS         .FILL x6A13
+
+
+;------------------------------------------------------------------------------
+;End Subroutine: SUB_MAIN_3000
+;------------------------------------------------------------------------------
+                    .END                         ;stop reading source code
+;-----------------------------------------------------------------------------
+;Subroutine:    SUB_MENU
+;Input (R1):    The address of where to store the array of words
+;Postcondition: The subroutine has collected an ENTER-terminated string of words
+;               from the user and stored them in consecutive memory locations, 
+;               starting at (R1).
+;Return Value:  None
+;...
+;-----------------------------------------------------------------------------
+                .ORIG x3200
+;-----------------------------------------------------------------------------
+;Instruction Block for 
+;-----------------------------------------------------------------------------
+SUB_MENU
+;(1) Backup all modified registers except the Return value
+                ST R7, BACKUP_R7_3200
+
+;(2) Algorithm: print binary representation of number in R2
+PRINT_MENU
+                LEA R0, MENU_1
+                PUTS
+                LEA R0, MENU_2
+                PUTS
+                LEA R0, MENU_1
+                PUTS
+                LEA R0, MENU_3
+                PUTS
+                LEA R0, MENU_4
+                PUTS
+                LEA R0, MENU_5
+                PUTS
+                LEA R0, MENU_6
+                PUTS
+                Trap x20
+                Trap x21
+               
+           
+                LD R1, NEG_DEC_48
+                ADD R0, R0, R1
+                LD R1, DEC_7
+                LD R2, DEC_1
+KEEP_CHECKING_CHOICE
+                NOT R2, R2
+                ADD R2, R2, #1
+                ADD R0, R0, R2
+                BRz RETURN_CHOICE
+                NOT R2, R2
+                ADD R2, R2, #1
+                ADD R0, R0, R2
+                ADD R2, R2, #1
+                ADD R1, R1, #-1
+                BRp KEEP_CHECKING_CHOICE
+                LEA R0, PRINT_MENU
+                JMP R0
+                
+RETURN_CHOICE
+                NOT R2, R2
+                ADD R2, R2, #1
+                ADD R1, R2, #0
+                LD R0, HEX_10
+                Trap x21
+
+
+
+;(3) Restore registers
+                LD R7, BACKUP_R7_3200
+
+;(4) Return
+                RET
+
+;-----------------------------------------------------------------------------
+;Data Block for SUB_TEMPLATE_3200
+;-----------------------------------------------------------------------------
+BACKUP_R7_3200  .BLKW #1
+DEC_1           .FILL #1
+NEG_DEC_48      .FILL #-48
+DEC_7           .FILL #7
+HEX_10          .FILL xA
+MENU_1          .STRINGZ "**********************\n"
+MENU_2          .STRINGZ "* The Busyness Server *\n"
+MENU_3          .STRINGZ "1. Check to see whether all machines are busy\n"
+MENU_4          .STRINGZ "2. Check to see whether all machines are free\n"
+MENU_5          .STRINGZ "3. Report the number of busy machines\n"
+MENU_6          .STRINGZ "4. Report the number of free machines\n5. Report the status of machine n\n6. Report the number of the first available machine\n7. Quit\n"
+;-----------------------------------------------------------------------------
+;End Subroutine: SUB_TEMPLATE_3200
+;-----------------------------------------------------------------------------
+
+.END
+;-----------------------------------------------------------------------------
+;Subroutine:    ALL_MACHINES_BUSY
+;Input:         None
+;Postcondition: Returned a value indicating whether all machines are busy
+;Return Value(R2) 1 if all machines are busy, 0 otherwise
+;...
+;-----------------------------------------------------------------------------
+                .ORIG x3400
+;-----------------------------------------------------------------------------
+;Instruction Block for 
+;-----------------------------------------------------------------------------
+ALL_MACHINES_BUSY
+;(1) Backup all modified registers except the Return value
+                ST R7, BACKUP_R7_3400
+
+;(2) Algorithm: print binary representation of number in R2
+                LD R2, DEC_ONE
+                LD R0, VECTOR_ADDR_1
+                LDR R3, R0, #0
+                BRz FINISH_ALL_BUSY
+                ADD R2, R2, #-1
+                LEA R0, FINISH_ALL_BUSY
+                JMP R0
+
+FINISH_ALL_BUSY
+;(3) Restore registers
+                LD R7, BACKUP_R7_3400
+
+;(4) Return
+                RET
+
+;-----------------------------------------------------------------------------
+;Data Block for SUB_TEMPLATE_3200
+;-----------------------------------------------------------------------------
+BACKUP_R7_3400  .BLKW #1
+DEC_ONE         .FILL #1
+VECTOR_ADDR_1   .FILL x5000
+
+;-----------------------------------------------------------------------------
+;End Subroutine: SUB_TEMPLATE_3200
+;-----------------------------------------------------------------------------
+.END
+;-----------------------------------------------------------------------------
+;Subroutine:    ALL_MACHINES_FREE
+;Input:         None
+;Postcondition: Returned a value indicating whether all machines are busy
+;Return Value(R2) 1 if all machines are busy, 0 otherwise
+;...
+;-----------------------------------------------------------------------------
+                .ORIG x3600
+;-----------------------------------------------------------------------------
+;Instruction Block for 
+;-----------------------------------------------------------------------------
+ALL_MACHINES_FREE
+;(1) Backup all modified registers except the Return value
+                ST R7, BACKUP_R7_3600
+
+;(2) Algorithm: print binary representation of number in R2
+                LD R2, DEC_ONE_2
+                LD R0, VECTOR_ADDR_2
+                LDR R3, R0, #0
+                LD R4, TEST_DEC
+                ADD R4, R4, R3
+                BRz END_ALL_FREE
+                ADD R2, R2, #-1
+                LEA R0, END_ALL_FREE
+                JMP R0
+END_ALL_FREE
+
+;(3) Restore registers
+                LD R7, BACKUP_R7_3600
+
+;(4) Return
+                RET
+
+;-----------------------------------------------------------------------------
+;Data Block for SUB_TEMPLATE_3200
+;-----------------------------------------------------------------------------
+BACKUP_R7_3600  .BLKW #1
+TEST_DEC        .FILL #-32767
+DEC_ONE_2       .FILL #1
+VECTOR_ADDR_2   .FILL x5000
+
+;-----------------------------------------------------------------------------
+;End Subroutine: SUB_TEMPLATE_3200
+;-----------------------------------------------------------------------------
+.END
+;-----------------------------------------------------------------------------
+;Subroutine:    NUM_BUSY_MACHINES
+;Input:         None
+;Postcondition: Returned the number of busy machines
+;Return Value(R2) number of busy machines
+;...
+;-----------------------------------------------------------------------------
+                .ORIG x3800
+;-----------------------------------------------------------------------------
+;Instruction Block for 
+;-----------------------------------------------------------------------------
+
+;(1) Backup all modified registers except the Return value
+                ST R7, BACKUP_R7_3800
+
+;(2) Algorithm: print binary representation of number in R2
+                LD R0, VECTOR_ADDR_3
+                LDR R1, R0, #0
+                LD R2, CLEAR
+                LD R5, MASK
+                LD R6, COUNTER
+RERUN_NUM_BUSY
+                AND R3, R5, R1
+                BRz INCREMENT_BUSY
+                ADD R1, R1, R1
+                ADD R6, R6, #-1
+                BRz END_NUM_BUSY
+                LEA R0, RERUN_NUM_BUSY
+                JMP R0
+                
+INCREMENT_BUSY
+                ADD R2, R2, #1
+                ADD R6, R6, #-1
+                BRz END_NUM_BUSY
+                ADD R1, R1, R1
+                LEA R0, RERUN_NUM_BUSY
+                JMP R0
+                
+END_NUM_BUSY
+               
+
+
+;(3) Restore registers
+                LD R7, BACKUP_R7_3800
+
+;(4) Return
+                RET
+
+;-----------------------------------------------------------------------------
+;Data Block for SUB_TEMPLATE_3200
+;-----------------------------------------------------------------------------
+CLEAR           .FILL #0
+MASK            .FILL x8000
+COUNTER         .FILL #16
+BACKUP_R7_3800  .BLKW #1
+VECTOR_ADDR_3   .FILL x5000
+
+;-----------------------------------------------------------------------------
+;End Subroutine: SUB_TEMPLATE_3200
+;-----------------------------------------------------------------------------
+.END
+;-----------------------------------------------------------------------------
+;Subroutine:    NUM_FREE_MACHINES
+;Input:         None
+;Postcondition: Returned the number of free machines
+;Return Value(R2) number of busy machines
+;...
+;-----------------------------------------------------------------------------
+                .ORIG x4000
+;-----------------------------------------------------------------------------
+;Instruction Block for 
+;-----------------------------------------------------------------------------
+
+;(1) Backup all modified registers except the Return value
+                ST R7, BACKUP_R7_4000
+
+;(2) Algorithm: print binary representation of number in R2
+                LD R0, VECTOR_ADDR_4
+                LDR R1, R0, #0
+                LD R2, CLEAR_2
+                LD R5, MASK_2
+                LD R6, COUNTER_2
+RERUN_NUM_FREE
+                AND R3, R5, R1
+                BRnp INCREMENT_FREE
+                ADD R1, R1, R1
+                ADD R6, R6, #-1
+                BRz END_NUM_FREE
+                LEA R0, RERUN_NUM_FREE
+                JMP R0
+                
+INCREMENT_FREE
+                ADD R2, R2, #1
+                ADD R6, R6, #-1
+                BRz END_NUM_FREE
+                ADD R1, R1, R1
+                LEA R0, RERUN_NUM_FREE
+                JMP R0
+                
+END_NUM_FREE
+               
+
+
+;(3) Restore registers
+                LD R7, BACKUP_R7_4000
+
+;(4) Return
+                RET
+
+;-----------------------------------------------------------------------------
+;Data Block for SUB_TEMPLATE_3200
+;-----------------------------------------------------------------------------
+CLEAR_2         .FILL #0
+MASK_2          .FILL x8000
+COUNTER_2       .FILL #16
+BACKUP_R7_4000  .BLKW #1
+VECTOR_ADDR_4   .FILL x5000
+
+;-----------------------------------------------------------------------------
+;End Subroutine: SUB_TEMPLATE_3200
+;-----------------------------------------------------------------------------
+.END
+;-----------------------------------------------------------------------------
+;Subroutine:    MACHINE_STATUS
+;Input:         R1: whih machine to check
+;Postcondition: Returned value indicating whether or not R1 is busy
+;Return Value(R2) 0 if busy, 1 if free
+;...
+;-----------------------------------------------------------------------------
+                .ORIG x4200
+;-----------------------------------------------------------------------------
+;Instruction Block for 
+;-----------------------------------------------------------------------------
+MACHINE_STATUS
+;(1) Backup all modified registers except the Return value
+                ST R7, BACKUP_R7_4200
+
+;(2) Algorithm: print binary representation of number in R2
+                LD R0, VECTOR_ADDR_5
+                LDR R3, R0, #0
+                LD R0, MASK_3
+SHIFT
+                ADD R1, R1, #-1
+                BRz CHECK_STATUS
+                ADD R3, R3, R3
+                LEA R7, SHIFT
+                JMP R7
+CHECK_STATUS
+                AND R5, R3, R0
+                BRz STATUS_ZERO
+                LD R2, ONE
+                LEA R7, END_STATUS
+                JMP R7
+                
+STATUS_ZERO
+                LD R2, ONE
+                ADD R2, R2, #-1
+                
+                
+                
+END_STATUS
+;(3) Restore registers
+                LD R7, BACKUP_R7_4200
+
+;(4) Return
+                RET
+
+;-----------------------------------------------------------------------------
+;Data Block for SUB_TEMPLATE_3200
+;-----------------------------------------------------------------------------
+BACKUP_R7_4200  .BLKW #1
+ONE             .FILL #1
+VECTOR_ADDR_5   .FILL x5000
+MASK_3          .FILL x8000
+
+;-----------------------------------------------------------------------------
+;End Subroutine: SUB_TEMPLATE_3200
+;-----------------------------------------------------------------------------
+.END
+;-----------------------------------------------------------------------------
+;Subroutine:    FIRST_FREE
+;Input:         None
+;Postcondition: Returned value indicating the lowest numbered free machine
+;Return Value(R2) number of the free machine
+;...
+;-----------------------------------------------------------------------------
+                .ORIG x4400
+;-----------------------------------------------------------------------------
+;Instruction Block for 
+;-----------------------------------------------------------------------------
+FIRST_FREE
+;(1) Backup all modified registers except the Return value
+                ST R7, BACKUP_R7_4400
+
+;(2) Algorithm: print binary representation of number in R2
+                LD R0, VECTOR_ADDR_6
+                LD R2, ONE_1
+                LD R1, COUNTER_3
+                LDR R3, R0, #0
+                LD R0, MASK_4
+FIRST_FREE_LOOP
+                AND R5, R0, R3
+                BRnp END_FIRST_FREE
+                ADD R3, R3, R3
+                ADD R2, R2, #1
+                ADD R1, R1, #-1
+                BRp FIRST_FREE_LOOP
+                LD R2, NEG_DEC_ONE
+                LEA R0, END_FIRST_FREE
+                JMP R0
+                
+
+                
+END_FIRST_FREE                
+;(3) Restore registers
+                LD R7, BACKUP_R7_4400
+
+;(4) Return
+                RET
+
+;-----------------------------------------------------------------------------
+;Data Block for SUB_TEMPLATE_3200
+;-----------------------------------------------------------------------------
+BACKUP_R7_4400  .BLKW #1
+ONE_1           .FILL #1
+NEG_DEC_ONE     .FILL #-1
+COUNTER_3       .FILL #16
+VECTOR_ADDR_6   .FILL x5000
+MASK_4          .FILL x8000
+
+;-----------------------------------------------------------------------------
+;End Subroutine: SUB_TEMPLATE_3200
+;-----------------------------------------------------------------------------
+.END
